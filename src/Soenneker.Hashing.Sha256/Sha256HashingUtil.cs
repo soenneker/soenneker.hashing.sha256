@@ -169,26 +169,7 @@ public sealed class Sha256HashingUtil : ISha256HashingUtil
         if (value.Length != _hexLength || destination.Length < _digestLength)
             return false;
 
-        for (var i = 0; i < _digestLength; i++)
-        {
-            int high = FromHex(value[i * 2]);
-            int low = FromHex(value[(i * 2) + 1]);
-
-            if ((high | low) < 0)
-                return false;
-
-            destination[i] = (byte)((high << 4) | low);
-        }
-
-        return true;
+        return Convert.FromHexString(value, destination, out _, out _) == OperationStatus.Done;
     }
 
-    private static int FromHex(char value)
-    {
-        if (value is >= '0' and <= '9')
-            return value - '0';
-
-        value = (char)(value | 0x20);
-        return value is >= 'a' and <= 'f' ? value - 'a' + 10 : -1;
-    }
 }
