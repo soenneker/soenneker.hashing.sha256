@@ -1,3 +1,4 @@
+using Soenneker.Utils.File.Abstract;
 using AwesomeAssertions;
 using Soenneker.Hashing.Sha256.Abstract;
 using Soenneker.Tests.HostedUnit;
@@ -11,10 +12,13 @@ namespace Soenneker.Hashing.Sha256.Tests;
 [ClassDataSource<Host>(Shared = SharedType.PerTestSession)]
 public sealed class Sha256HashingUtilTests : HostedUnitTest
 {
+    private readonly IFileUtil _fileUtil;
+
     private readonly ISha256HashingUtil _util;
 
     public Sha256HashingUtilTests(Host host) : base(host)
     {
+        _fileUtil = Resolve<IFileUtil>(true);
         _util = Resolve<ISha256HashingUtil>(true);
     }
 
@@ -106,7 +110,7 @@ public sealed class Sha256HashingUtilTests : HostedUnitTest
 
         try
         {
-            await File.WriteAllTextAsync(path, "file value", new UTF8Encoding(false));
+            await _fileUtil.Write(path, "file value");
 
             string hash = await _util.HashFile(path);
 
@@ -115,7 +119,7 @@ public sealed class Sha256HashingUtilTests : HostedUnitTest
         }
         finally
         {
-            File.Delete(path);
+            await _fileUtil.Delete(path);
         }
     }
 
