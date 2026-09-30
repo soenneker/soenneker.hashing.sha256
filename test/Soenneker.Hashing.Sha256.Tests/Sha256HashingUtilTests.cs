@@ -81,7 +81,7 @@ public sealed class Sha256HashingUtilTests : HostedUnitTest
     }
 
     [Test]
-    public async Task Stream_hashing_starts_at_current_position()
+    public async ValueTask Stream_hashing_starts_at_current_position()
     {
         await using var stream = new MemoryStream("skipabc"u8.ToArray());
         stream.Position = 4;
@@ -92,7 +92,7 @@ public sealed class Sha256HashingUtilTests : HostedUnitTest
     }
 
     [Test]
-    public async Task Verify_stream_compares_binary_digest()
+    public async ValueTask Verify_stream_compares_binary_digest()
     {
         byte[] data = "stream value"u8.ToArray();
         byte[] expected = _util.Hash(data);
@@ -104,7 +104,7 @@ public sealed class Sha256HashingUtilTests : HostedUnitTest
     }
 
     [Test]
-    public async Task File_hashing_and_verification_match_text_hashing()
+    public async ValueTask File_hashing_and_verification_match_text_hashing()
     {
         string path = Path.GetTempFileName();
 
