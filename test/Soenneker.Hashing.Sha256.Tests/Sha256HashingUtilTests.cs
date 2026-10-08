@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Soenneker.Hashing.Sha256.Tests;
 
@@ -81,41 +82,41 @@ public sealed class Sha256HashingUtilTests : HostedUnitTest
     }
 
     [Test]
-    public async ValueTask Stream_hashing_starts_at_current_position()
+    public async ValueTask Stream_hashing_starts_at_current_position(CancellationToken cancellationToken)
     {
         await using var stream = new MemoryStream("skipabc"u8.ToArray());
         stream.Position = 4;
 
-        string result = await _util.HashToString(stream);
+        string result = await _util.HashToString(stream, cancellationToken: cancellationToken);
 
         result.Should().Be(_util.Hash("abc"));
     }
 
     [Test]
-    public async ValueTask Verify_stream_compares_binary_digest()
+    public async ValueTask Verify_stream_compares_binary_digest(CancellationToken cancellationToken)
     {
         byte[] data = "stream value"u8.ToArray();
         byte[] expected = _util.Hash(data);
         await using var stream = new MemoryStream(data);
 
-        bool result = await _util.Verify(stream, expected);
+        bool result = await _util.Verify(stream, expected, cancellationToken: cancellationToken);
 
         result.Should().BeTrue();
     }
 
     [Test]
-    public async ValueTask File_hashing_and_verification_match_text_hashing()
+    public async ValueTask File_hashing_and_verification_match_text_hashing(CancellationToken cancellationToken)
     {
         string path = Path.GetTempFileName();
 
         try
         {
-            await _fileUtil.Write(path, "file value");
+            await _fileUtil.Write(path, "file value", cancellationToken: cancellationToken);
 
-            string hash = await _util.HashFile(path);
+            string hash = await _util.HashFile(path, cancellationToken: cancellationToken);
 
             hash.Should().Be(_util.Hash("file value"));
-            (await _util.VerifyFile(path, hash)).Should().BeTrue();
+            (await _util.VerifyFile(path, hash, cancellationToken: cancellationToken)).Should().BeTrue();
         }
         finally
         {
